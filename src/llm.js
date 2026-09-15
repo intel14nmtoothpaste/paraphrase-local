@@ -1,3 +1,5 @@
+﻿import { readSseStream, sseWrite } from "./sse.js";
+
 const TONE_INSTRUCTIONS = {
   standard: "Use a clear, neutral tone.",
   formal: "Use a formal, professional tone. Avoid contractions and slang.",
@@ -17,10 +19,6 @@ export function buildPrompt(mode, tone) {
   const toneLine = TONE_INSTRUCTIONS[tone] ?? TONE_INSTRUCTIONS.standard;
   if (!task) throw new Error(`Unknown mode: ${mode}`);
   return `${task}\n${toneLine}\nReturn only the rewritten text.`;
-}
-
-function sseWrite(res, event, data) {
-  res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
 }
 
 async function streamAnthropic({ apiKey, model, system, user, res }) {
@@ -43,33 +41,14 @@ async function streamAnthropic({ apiKey, model, system, user, res }) {
     const err = await response.text();
     throw new Error(`Anthropic error ${response.status}: ${err.slice(0, 500)}`);
   }
+
   let output = "";
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-  let buffer = "";
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    const chunks = buffer.split("\n");
-    buffer = chunks.pop() ?? "";
-    for (const line of chunks) {
-      const trimmed = line.trim();
-      if (!trimmed.startsWith("data:")) continue;
-      const payload = trimmed.slice(5).trim();
-      if (!payload) continue;
-      let json;
-      try {
-        json = JSON.parse(payload);
-      } catch {
-        continue;
-      }
-      if (json.type === "content_block_delta" && json.delta?.text) {
-        output += json.delta.text;
-        sseWrite(res, "token", { text: json.delta.text });
-      }
-    }
-  }
+  await readSseStream(response, (json) => {
+    if (json.type !== "content_block_delta" || !json.delta?.text) return;
+    output += json.delta.text;
+    sseWrite(res, "token", { text: json.delta.text });
+  });
+
   return output;
 }
 
@@ -93,34 +72,15 @@ async function streamOpenAI({ apiKey, model, system, user, res }) {
     const err = await response.text();
     throw new Error(`OpenAI error ${response.status}: ${err.slice(0, 500)}`);
   }
+
   let output = "";
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-  let buffer = "";
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    const chunks = buffer.split("\n");
-    buffer = chunks.pop() ?? "";
-    for (const line of chunks) {
-      const trimmed = line.trim();
-      if (!trimmed.startsWith("data:")) continue;
-      const payload = trimmed.slice(5).trim();
-      if (!payload || payload === "[DONE]") continue;
-      let json;
-      try {
-        json = JSON.parse(payload);
-      } catch {
-        continue;
-      }
-      const text = json.choices?.[0]?.delta?.content;
-      if (text) {
-        output += text;
-        sseWrite(res, "token", { text });
-      }
-    }
-  }
+  await readSseStream(response, (json) => {
+    const text = json.choices?.[0]?.delta?.content;
+    if (!text) return;
+    output += text;
+    sseWrite(res, "token", { text });
+  });
+
   return output;
 }
 
