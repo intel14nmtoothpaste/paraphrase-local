@@ -1,0 +1,224 @@
+:root {
+  --ink: #1c1917;
+  --muted: #78716c;
+  --paper: #faf7f2;
+  --card: #ffffff;
+  --line: #e7e0d6;
+  --accent: #1d4e4a;
+  --accent-2: #c45c26;
+  --add: #166534;
+  --add-bg: #dcfce7;
+  --del: #991b1b;
+  --del-bg: #fee2e2;
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0 auto;
+  max-width: 1100px;
+  padding: 1.25rem 1.5rem 3rem;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+h1 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+nav a {
+  color: var(--accent);
+  margin-left: 1rem;
+  text-decoration: none;
+}
+
+nav a[aria-current="page"] {
+  text-decoration: underline;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.pane label {
+  display: block;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+}
+
+textarea,
+.output {
+  width: 100%;
+  min-height: 220px;
+  padding: 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+  font: 1rem/1.45 "Source Serif 4", Georgia, serif;
+  resize: vertical;
+}
+
+.output {
+  white-space: pre-wrap;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.modes {
+  display: flex;
+  gap: 0.35rem;
+}
+
+button,
+select {
+  font: inherit;
+  font-size: 0.95rem;
+}
+
+.mode,
+.primary,
+.issue button,
+.copy {
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 999px;
+  padding: 0.4rem 0.85rem;
+  cursor: pointer;
+}
+
+.mode[aria-pressed="true"],
+.primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.primary:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.tone {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.hint,
+.privacy,
+.status {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.status.error {
+  color: var(--accent-2);
+}
+
+.issues,
+.diff-wrap {
+  margin-top: 1.5rem;
+}
+
+h2 {
+  font-size: 1rem;
+  margin: 0 0 0.6rem;
+}
+
+#issues {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.issue {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.7rem 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.issue p {
+  margin: 0 0 0.5rem;
+}
+
+.issue .excerpt {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.diff {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.85rem;
+  min-height: 3rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.diff ins {
+  background: var(--add-bg);
+  color: var(--add);
+  text-decoration: none;
+}
+
+.diff del {
+  background: var(--del-bg);
+  color: var(--del);
+  text-decoration: line-through;
+}
+
+.history article {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.9rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.history header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.history pre {
+  white-space: pre-wrap;
+  font: inherit;
+  margin: 0.4rem 0;
+}
+
+@media (max-width: 800px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
