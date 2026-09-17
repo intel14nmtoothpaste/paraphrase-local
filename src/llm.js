@@ -84,7 +84,7 @@ async function streamOpenAI({ apiKey, model, system, user, res }) {
   return output;
 }
 
-export async function streamRewrite({ env, mode, tone, input, res }) {
+export function streamRewrite({ env, mode, tone, input, res }) {
   const system = buildPrompt(mode, tone);
   const anthropicKey = env.ANTHROPIC_API_KEY?.trim();
   const openaiKey = env.OPENAI_API_KEY?.trim();
